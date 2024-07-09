@@ -1,14 +1,13 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { getTaskById } from "../util/http";
 
 const TaskDetails = () => {
   const { id } = useParams();
   const [task, setTask] = useState();
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await axios.get(`http://localhost:3000/tasks/${id}`);
-      console.log(data);
+      const { data } = await getTaskById(id);
       setTask(data);
     };
     fetchData();

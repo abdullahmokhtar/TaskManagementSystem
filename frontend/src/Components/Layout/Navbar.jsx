@@ -1,18 +1,18 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
-// import { useContext } from "react";
-// import { AuthContext } from "../../context/AuthContext";
-// import Cookies from "js-cookie";
+import { useContext } from "react";
+import { AuthContext } from "../../context/authContext";
+import Cookies from "js-cookie";
 
 const Navbar = () => {
-  //   const { userIsLoggedIn, setUserIsLoggedIn } = useContext(AuthContext);
-  //   const navigate = useNavigate();
+  const { userIsLoggedIn, setUserIsLoggedIn } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  //   const logout = () => {
-  //     setUserIsLoggedIn(false);
-  //     Cookies.remove("token");
-  //     navigate("/login", { replace: true });
-  //   };
+  const logout = () => {
+    setUserIsLoggedIn(false);
+    Cookies.remove("token");
+    navigate("/login", { replace: true });
+  };
   return (
     <nav className="navbar navbar-expand-lg bg-gred">
       <div className="container">
@@ -43,27 +43,25 @@ const Navbar = () => {
             </li>
           </ul>
           <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-            {
-              // !userIsLoggedIn &&
+            {!userIsLoggedIn && (
               <li className="nav-item">
                 <Link to="/login" className="nav-link text-white fw-bold">
                   Login
                 </Link>
               </li>
-            }
+            )}
 
-            {
-              // userIsLoggedIn &&
+            {userIsLoggedIn && (
               <li className="nav-item">
                 <span
-                  // onClick={logout}
+                  onClick={logout}
                   className="nav-link text-white fw-bold"
                   role="button"
                 >
                   Logout
                 </span>
               </li>
-            }
+            )}
           </ul>
         </div>
       </div>

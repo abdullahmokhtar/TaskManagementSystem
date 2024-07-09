@@ -1,6 +1,6 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { getTaskById, updateTask } from "../util/http";
 
 const Edit = () => {
   const { id } = useParams();
@@ -14,10 +14,10 @@ const Edit = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/tasks/${id}`);
-        setTitle(response.data.Title);
-        setDescription(response.data.Description);
-        setStatus(response.data.Status);
+        const { data } = await getTaskById(id);
+        setTitle(data.Title);
+        setDescription(data.Description);
+        setStatus(data.Status);
       } catch (error) {
         if (error.response.status === 404) {
           navigate("/not-found", { replace: true });
@@ -40,21 +40,10 @@ const Edit = () => {
       setDescriptionError("Task description is required");
       return;
     }
-    console.log(status);
-    const { data } = await axios
-      .put(`http://localhost:3000/tasks/${id}`, {
-        title,
-        description,
-        status: status,
-      })
-      .catch((err) => {
-        const error = new Error(err.response.data);
-        error.code = err.response.status;
-        throw error;
-      });
+    await updateTask(id, { title, description, status });
+
     navigate("/home");
   };
-  console.log(id);
   return (
     <form>
       <label>Task Name:</label>
@@ -83,7 +72,7 @@ const Edit = () => {
         onChange={(e) => setStatus(e.target.value)}
       >
         <option defaultValue>Status</option>
-        <option value="pending">Pending</option>
+        <option value="Pending">Pending</option>
         <option value="In Progress">In Progress</option>
         <option value="Completed">Completed</option>
       </select>

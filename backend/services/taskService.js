@@ -1,11 +1,12 @@
+const jwt = require("jsonwebtoken");
 const taskRepository = require("../repositories/taskRepository");
 
-async function getAllTasks() {
-  return await taskRepository.getAllTasks();
+async function getAllTasks(userId) {
+  return await taskRepository.getAllTasks(userId);
 }
 
-async function getTaskById(id) {
-  const task = await taskRepository.getTaskById(id);
+async function getTaskById(id, userId) {
+  const task = await taskRepository.getTaskById(id, userId);
   if (!task) {
     throw new Error("task not found");
   }
@@ -13,23 +14,30 @@ async function getTaskById(id) {
 }
 
 async function createTask(task) {
-  const { title, status, description } = task;
-  if (!title || !status || !description) {
+  const { title, status, description, userId } = task;
+  if (!title || !status || !description || !userId) {
     throw new Error("Please provide all required fields");
   }
+  if (
+    !["pending", "inprogress", "Completed"].includes(
+      status.trim().replace(" ", "")
+    )
+  )
+    throw new Error("Please provide valid status");
+
   await taskRepository.createTask(task);
 }
 
-async function updateTask(id, task) {
-  const existingTask = await taskRepository.getTaskById(id);
+async function updateTask(id, task, userId) {
+  const existingTask = await taskRepository.getTaskById(id, userId);
   if (!existingTask) {
     throw new Error("task not found");
   }
   await taskRepository.updateTask(id, task);
 }
 
-async function deleteTask(id) {
-  const existingTask = await taskRepository.getTaskById(id);
+async function deleteTask(id, userId) {
+  const existingTask = await taskRepository.getTaskById(id, userId);
   if (!existingTask) {
     throw new Error("task not found");
   }

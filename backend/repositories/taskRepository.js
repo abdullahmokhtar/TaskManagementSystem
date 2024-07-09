@@ -1,47 +1,36 @@
 const mssql = require("mssql");
-require("dotenv").config();
+const { getPool } = require("../configurations/dbConnection");
 
-const config = {
-  user: process.env.USER,
-  password: process.env.PASSWORD,
-  server: process.env.SERVER,
-  database: process.env.DATABASE,
-  options: {
-    encrypt: true,
-    trustServerCertificate: true,
-  },
-};
-
-async function getPool() {
-  const pool = await mssql.connect(config);
-  return pool;
-}
-
-async function getAllTasks() {
+async function getAllTasks(userId) {
   const pool = await getPool();
-  const result = await pool.request().query("SELECT * FROM Tasks");
+  const result = await pool
+    .request()
+    .input("userId", mssql.Int, userId)
+    .query("SELECT * FROM Tasks where userId = @userId");
   return result.recordset;
 }
 
-async function getTaskById(id) {
+async function getTaskById(id, userId) {
   const pool = await getPool();
   const result = await pool
     .request()
     .input("id", mssql.Int, id)
-    .query("SELECT * FROM Tasks WHERE id = @id");
+    .input("userId", mssql.Int, userId)
+    .query("SELECT Top 1 * FROM Tasks WHERE id = @id AND userId = @userId");
   return result.recordset[0];
 }
 
 async function createTask(Task) {
-  const { title, status, description } = Task;
+  const { title, status, description, userId } = Task;
   const pool = await getPool();
   await pool
     .request()
     .input("title", mssql.VarChar, title)
     .input("status", mssql.VarChar, status)
     .input("description", mssql.VarChar, description)
+    .input("userId", mssql.Int, userId)
     .query(
-      "INSERT INTO Tasks (title, status, description, createdAt, updatedAt) VALUES (@title, @status, @description, GETUTCDATE(), GETUTCDATE())"
+      "INSERT INTO Tasks (title, status, description, createdAt, updatedAt, userId) VALUES (@title, @status, @description, GETUTCDATE(), GETUTCDATE(), @userId)"
     );
 }
 

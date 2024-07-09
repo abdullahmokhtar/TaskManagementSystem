@@ -1,7 +1,6 @@
-import axios from "axios";
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { createTask } from "../util/http";
 
 const CreateTask = () => {
   const [title, setTitle] = useState("");
@@ -19,17 +18,12 @@ const CreateTask = () => {
       setDescriptionError("Task description is required");
       return;
     }
-    const { data } = await axios
-      .post("http://localhost:3000/tasks", {
-        title,
-        description,
-        status: "pending",
-      })
-      .catch((err) => {
-        const error = new Error(err.response.data);
-        error.code = err.response.status;
-        throw error;
-      });
+    await createTask({
+      title,
+      description,
+      status: "pending",
+    });
+
     navigate("/home");
   };
   return (
